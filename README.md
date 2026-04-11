@@ -80,6 +80,7 @@ Wi‑Fi Sentinel evolves in **three autonomous phases** – each one adds a new 
 
 ## 📁 Repository structure (planned)
 
+```bash
 wifi-sentinel/
 ├── stage1_observer/
 │ ├── scanner.py
@@ -96,6 +97,7 @@ wifi-sentinel/
 ├── config/
 ├── docs/
 └── README.md
+```
 
 ---
 
