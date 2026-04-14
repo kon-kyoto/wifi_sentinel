@@ -19,6 +19,21 @@ def startStopMonitor(iface, mod):
                 print(f"!!!! Please check {iface} with command 'ip a'")
         return 1;
 
+def startStopNetwork(mod):
+    print(f"[ ] {mod} network process")
+    try:
+        net_list = ["wpa_supplicant", "iwd", "NetworkManager"]
+        for net in net_list:
+            subprocess.run(["sudo", "systemctl", mod, net])
+            print(f"[ ] {mod} {net}")
+        print(f"[+] {mod} network success")
+
+        return 0
+    except:
+        print("[-] somthing went wrong")
+        
+        return 1
+
 def pktHandler(pkt):
     pkt.summary()
 
@@ -38,6 +53,7 @@ def main():
             write_interval = sys.argv[i+1]
 
     is_err = startStopMonitor(iface, "monitor") 
+    is_err = startStopNetwork("stop")
     if is_err: sys.exit(1)
 
     print(f"[*] Startting capture on {iface}")
@@ -49,6 +65,7 @@ def main():
     except KeyboardInterrupt:
         print("\n[*] Stopping...")
         startStopMonitor(iface, "managed")
+        startStopNetwork("start")
 
         if write_prefix:
             pass
