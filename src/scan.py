@@ -2,13 +2,31 @@ import sys
 import signal
 import subprocess
 
-from scapy.all import sniff
+from scapy.all import sniff, RadioTap, Dot11, DHCP
 
 iface = None
 iface_mon = None
 write_prefix = None
 
+macs = []
+
 # Create class for signal and iface in future pls
+
+# def pktHandler(pkt):
+#     print(f"addr1: {pkt.addr1} addr2: {pkt.addr2} addr3: {pkt.addr3}")
+
+def pktDHCPCheck(pkt):
+    try:
+        if pkt.haslayer(Dot11):
+            mac = pkt.addr2
+            if mac not in macs:
+                macs.append(mac)
+                print(f"mac: {mac}")
+        if pkt.haslayer(DHCP):
+            pkt.show()
+    except Exception as ex:
+        print(ex)
+        pass
 
 def signalHandler(sig, frame):
     print("\n[*] Stopping...")
@@ -52,9 +70,6 @@ def startStopNetwork(mod):
         
         return 1
 
-def pktHandler(pkt):
-    pkt.show()
-
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <interface> [-w prefix] [--wi time]")
@@ -82,7 +97,7 @@ def main():
     signal.signal(signal.SIGINT, signalHandler)
 
     try:
-        sniff(iface=iface_mon, prn=pktHandler)
+        sniff(iface=iface_mon, prn=pktDHCPCheck)
     except Exception as e:
         print(f"[*] Error: {e}")
         signalHandler(None, None)
