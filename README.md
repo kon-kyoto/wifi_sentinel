@@ -41,4 +41,5 @@ pip install -r requirements.txt
 
 # Сохранение зависимостей
 pip freeze > requirements.txt
+sudo -E env "PATH=$PATH" python scan.py wlan0 -w output
 ```
