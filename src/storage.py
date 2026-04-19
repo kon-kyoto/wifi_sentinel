@@ -16,9 +16,7 @@ def add_or_update_device(mac, channel, is_ap=False, ssid=""):
                 'channel': channel,
                 'is_ap': False
             }
-            print(f"\n[+] NEW DEVICE")
-            print(f"    MAC: {mac}")
-            print(f"    Channel: {channel}")
+            print(f"[+] NEW DEVICE\tMAC: {mac}\tChannel: {channel}")
         
         if is_ap:
             devices[mac]['is_ap'] = True
