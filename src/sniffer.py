@@ -11,8 +11,8 @@ from storage import add_or_update_device
 from channel import get_current_channel
 
 sniffing_active = True
-http_enabled = False
-mac_enabled = False
+http_enabled = True
+mac_enabled = True
 packet_count = 0
 packet_count_lock = threading.Lock()
 http_data_list = []
@@ -29,14 +29,10 @@ def init_sniffer_state():
 def set_http_enabled(enabled):
     global http_enabled
     http_enabled = enabled
-    if enabled:
-        print("[*] HTTP detection enabled")
 
 def set_mac_enabled(enabled):
     global mac_enabled
     mac_enabled = enabled
-    if enabled:
-        print("[*] MAC detection enabled")
 
 def stop_sniffing():
     global sniffing_active
@@ -69,27 +65,8 @@ def pktHandler(pkt):
         
         current_ch = get_current_channel()
         
-        # Режим: только HTTP
-        if http_enabled and not mac_enabled:
-            if is_http(pkt):
-                http_info = parse_http(pkt, current_ch)
-                if http_info and http_info.get('type') == 'request':
-                    with http_data_lock:
-                        http_data_list.append(http_info)
-                    print(f"\n[HTTP Request] {http_info.get('method', '?')} {http_info.get('host', '?')}{http_info.get('path', '?')}")
-                    print(f"    From: {http_info.get('src_ip', '?')}:{http_info.get('src_port', '?')}")
-                    if http_info.get('user_agent'):
-                        print(f"    User-Agent: {http_info['user_agent'][:100]}")
-                elif http_info and http_info.get('type') == 'response':
-                    print(f"\n[HTTP Response] {http_info.get('status_code', '?')} {http_info.get('reason', '?')}")
-                    print(f"    Content-Type: {http_info.get('content_type', '?')}")
-        
-        # Режим: только MAC
-        elif mac_enabled and not http_enabled:
+        if mac_enabled:
             add_or_update_device(mac, current_ch, False, "")
-        
-        # Режим: полный (все вместе)
-        elif not http_enabled and not mac_enabled:
             if is_probe_request(pkt):
                 ssid = extract_ssid(pkt)
                 if ssid:
@@ -99,22 +76,19 @@ def pktHandler(pkt):
                 if ssid:
                     add_or_update_device(mac, current_ch, True, ssid)
         
-        # Режим: HTTP + MAC вместе
-        elif http_enabled and mac_enabled:
-            add_or_update_device(mac, current_ch, False, "")
-            if is_http(pkt):
-                http_info = parse_http(pkt, current_ch)
-                if http_info and http_info.get('type') == 'request':
-                    with http_data_lock:
-                        http_data_list.append(http_info)
-                    print(f"\n[HTTP Request] {http_info.get('method', '?')} {http_info.get('host', '?')}{http_info.get('path', '?')}")
-                    print(f"    From: {http_info.get('src_ip', '?')}:{http_info.get('src_port', '?')}")
-                    if http_info.get('user_agent'):
-                        print(f"    User-Agent: {http_info['user_agent'][:100]}")
-                elif http_info and http_info.get('type') == 'response':
-                    print(f"\n[HTTP Response] {http_info.get('status_code', '?')} {http_info.get('reason', '?')}")
-                    print(f"    Content-Type: {http_info.get('content_type', '?')}")
-                
+        if http_enabled and is_http(pkt):
+            http_info = parse_http(pkt, current_ch)
+            if http_info and http_info.get('type') == 'request':
+                with http_data_lock:
+                    http_data_list.append(http_info)
+                print(f"\n[HTTP Request] {http_info.get('method', '?')} {http_info.get('host', '?')}{http_info.get('path', '?')}")
+                print(f"    From: {http_info.get('src_ip', '?')}:{http_info.get('src_port', '?')}")
+                if http_info.get('user_agent'):
+                    print(f"    User-Agent: {http_info['user_agent'][:100]}")
+            elif http_info and http_info.get('type') == 'response':
+                print(f"\n[HTTP Response] {http_info.get('status_code', '?')} {http_info.get('reason', '?')}")
+                print(f"    Content-Type: {http_info.get('content_type', '?')}")
+        
     except Exception:
         pass
 

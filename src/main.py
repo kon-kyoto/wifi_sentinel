@@ -21,11 +21,6 @@ def print_usage():
     print(f"  --mac           Enable MAC address detection only")
     print(f"  -c <channel>    Use static channel (1-13) instead of hopping")
     print(f"  -h, --help      Show this help message")
-    print(f"\nModes:")
-    print(f"  No flags        Full functionality (Wi-Fi + HTTP + MAC)")
-    print(f"  --http          HTTP traffic parsing only")
-    print(f"  --mac           MAC address detection only")
-    print(f"  --http --mac    Both HTTP and MAC detection")
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ["-h", "--help"]:
@@ -99,17 +94,18 @@ def main():
     else:
         print(f"[ ] Hopping channels: {channels[0]}-{channels[-1]}")
     
-    # Включаем нужные модули
     if http_flag or (not http_flag and not mac_flag):
         print(f"[ ] HTTP parsing: ENABLED")
         set_http_enabled(True)
     else:
+        set_http_enabled(False)
         print(f"[ ] HTTP parsing: DISABLED")
     
     if mac_flag or (not http_flag and not mac_flag):
         print(f"[ ] MAC detection: ENABLED")
         set_mac_enabled(True)
     else:
+        set_mac_enabled(False)
         print(f"[ ] MAC detection: DISABLED")
     
     print(f"[ ] Press Ctrl+C to stop it\n")

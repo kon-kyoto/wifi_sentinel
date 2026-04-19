@@ -11,7 +11,6 @@ devices_lock = Lock()
 known_macs = set()
 
 def load_existing_devices(write_prefix):
-    """Load existing devices from CSV file"""
     global known_macs, devices
     mac_filename = f"{write_prefix}_mac.csv"
     
@@ -39,15 +38,12 @@ def add_or_update_device(mac, channel, is_ap=False, ssid=""):
     with devices_lock:
         global known_macs
         
-        # Проверяем, новый ли это MAC (никогда не встречался)
         is_new_mac = mac not in known_macs
         
-        # Если MAC новый - выводим сообщение и добавляем в known_macs
         if is_new_mac:
             known_macs.add(mac)
-            print(f"[+] NEW DEVICE\tMAC: {mac}\tChannel: {channel}")
+            print(f"[+] NEW\tMAC: {mac}\tChannel: {channel}")
         
-        # Добавляем или обновляем устройство в devices
         if mac not in devices:
             devices[mac] = {
                 'essid': "",
@@ -55,7 +51,6 @@ def add_or_update_device(mac, channel, is_ap=False, ssid=""):
                 'is_ap': False
             }
         else:
-            # Обновляем канал если он изменился
             if devices[mac]['channel'] != channel:
                 devices[mac]['channel'] = channel
         
@@ -67,8 +62,7 @@ def add_or_update_device(mac, channel, is_ap=False, ssid=""):
                 devices[mac]['essid'] += f", {ssid}"
             else:
                 devices[mac]['essid'] = ssid
-            if is_new_mac:
-                print(f"    [{mac}] Probing: {ssid}")
+            print(f"    [{mac}] Probing: {ssid}")
             return True
         return False
 
