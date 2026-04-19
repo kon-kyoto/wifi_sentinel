@@ -1,12 +1,13 @@
+# http_parser.py
 """
-Packet HTTP parsing utilities.
-Extracts HTTP request/response.
+Утилиты для парсинга HTTP пакетов.
+Извлекает HTTP запросы и ответы.
 """
 from scapy.all import TCP, IP, Raw
-from scapy.layers import http
+import scapy.layers.http as http
+from scapy.layers.http import HTTPRequest, HTTPResponse
 
 def is_http(pkt):
-    """Check if packet is HTTP traffic (ports 80, 8080, 8000)"""
     if pkt.haslayer(TCP):
         sport = pkt[TCP].sport
         dport = pkt[TCP].dport
@@ -15,7 +16,6 @@ def is_http(pkt):
     return False
 
 def parse_http(pkt, current_channel, rssi=None):
-    """Extract HTTP request/response information"""
     result = {
         'type': None,
         'channel': current_channel,
@@ -26,36 +26,31 @@ def parse_http(pkt, current_channel, rssi=None):
         'dst_port': None
     }
 
-    # IP addresses
     if pkt.haslayer(IP):
         result['src_ip'] = pkt[IP].src
         result['dst_ip'] = pkt[IP].dst
     
-    # TCP ports
     if pkt.haslayer(TCP):
         result['src_port'] = pkt[TCP].sport
         result['dst_port'] = pkt[TCP].dport
     
-    # HTTP Request — используем http.HTTPRequest
-    if pkt.haslayer(http.HTTPRequest):
+    if pkt.haslayer(HTTPRequest):
         result['type'] = 'request'
-        req = pkt[http.HTTPRequest]
+        req = pkt[HTTPRequest]
         result['method'] = req.Method.decode() if req.Method else None
         result['path'] = req.Path.decode() if req.Path else None
         result['host'] = req.Host.decode() if req.Host else None
         result['user_agent'] = req.User_Agent.decode() if req.User_Agent else None
         
-        # Extract POST data if present
         if pkt.haslayer(Raw) and result['method'] == 'POST':
             try:
                 result['post_data'] = pkt[Raw].load.decode('utf-8', errors='ignore')[:500]
             except:
                 result['post_data'] = None
     
-    # HTTP Response
-    elif pkt.haslayer(http.HTTPResponse):
+    elif pkt.haslayer(HTTPResponse):
         result['type'] = 'response'
-        resp = pkt[http.HTTPResponse]
+        resp = pkt[HTTPResponse]
         result['status_code'] = resp.Status_Code.decode() if resp.Status_Code else None
         result['reason'] = resp.Reason_Phrase.decode() if resp.Reason_Phrase else None
         result['content_type'] = resp.Content_Type.decode() if resp.Content_Type else None

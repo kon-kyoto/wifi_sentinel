@@ -1,6 +1,6 @@
 """
-Packet parsing utilities.
-Extracts MAC addresses, SSIDs and identifies packet types from 802.11 frames.
+Утилиты для парсинга пакетов.
+Извлекает MAC-адреса, SSID и определяет типы пакетов из 802.11 кадров.
 """
 from scapy.all import Dot11, Dot11ProbeReq, Dot11Beacon, Dot11Elt
 
@@ -26,3 +26,4 @@ def is_probe_request(pkt):
 
 def is_beacon(pkt):
     return pkt.haslayer(Dot11Beacon)
+

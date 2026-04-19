@@ -1,12 +1,13 @@
 """
-Signal handling and cleanup.
-Manages graceful shutdown, network restoration and data saving.
+Обработка сигналов и очистка.
+Управляет корректным завершением, восстановлением сети и сохранением данных.
 """
 import sys
 import time
 from monitor import startStopMonitor, startStopNetwork
-from storage import save_to_csv, get_devices_count
+from storage import save_to_csv, save_http_to_csv, get_devices_count
 from channel import stop_channel_hopping
+from sniffer import get_packet_count, get_http_data
 
 iface = None
 iface_mon = None
@@ -20,6 +21,10 @@ def init_handler_state(i, i_mon, prefix):
 
 def signalHandler(sig, frame):
     print("\n[*] Stopping...")
+    
+    print(f"[*] Statistics:")
+    print(f"    Total packets captured: {get_packet_count()}")
+    
     stop_channel_hopping()
     
     time.sleep(0.5)
@@ -29,6 +34,9 @@ def signalHandler(sig, frame):
     
     if write_prefix:
         save_to_csv(write_prefix)
+        http_data = get_http_data()
+        if http_data:
+            save_http_to_csv(write_prefix, http_data)
         print(f"[*] Total devices: {get_devices_count()}")
     
     sys.exit(0)
