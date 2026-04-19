@@ -124,16 +124,25 @@ def save_http_to_csv(write_prefix, http_data):
     with open(http_filename, mode, newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         if mode == 'w':
-            writer.writerow(['src_ip', 'dst_ip', 'method', 'host', 'path', 'user_agent', 'channel'])
+            writer.writerow(['timestamp', 'src_ip', 'dst_ip', 'src_port', 'dst_port', 
+                           'method', 'host', 'path', 'user_agent', 'post_data', 
+                           'status_code', 'reason', 'content_type', 'channel'])
         
         for data in http_data:
             writer.writerow([
+                data.get('timestamp', ''),
                 data.get('src_ip', ''),
                 data.get('dst_ip', ''),
+                data.get('src_port', ''),
+                data.get('dst_port', ''),
                 data.get('method', ''),
                 data.get('host', ''),
                 data.get('path', ''),
                 data.get('user_agent', ''),
+                data.get('post_data', ''),
+                data.get('status_code', ''),
+                data.get('reason', ''),
+                data.get('content_type', ''),
                 data.get('channel', '')
             ])
     

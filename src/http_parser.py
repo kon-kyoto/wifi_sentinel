@@ -5,6 +5,7 @@
 from scapy.all import TCP, IP, Raw
 import scapy.layers.http as http
 from scapy.layers.http import HTTPRequest, HTTPResponse
+import time
 
 def is_http(pkt):
     if pkt.haslayer(TCP):
@@ -17,12 +18,21 @@ def is_http(pkt):
 def parse_http(pkt, current_channel, rssi=None):
     result = {
         'type': None,
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
         'channel': current_channel,
         'rssi': rssi,
         'src_ip': None,
         'dst_ip': None,
         'src_port': None,
-        'dst_port': None
+        'dst_port': None,
+        'method': None,
+        'path': None,
+        'host': None,
+        'user_agent': None,
+        'post_data': None,
+        'status_code': None,
+        'reason': None,
+        'content_type': None
     }
 
     if pkt.haslayer(IP):
@@ -43,7 +53,7 @@ def parse_http(pkt, current_channel, rssi=None):
         
         if pkt.haslayer(Raw) and result['method'] == 'POST':
             try:
-                result['post_data'] = pkt[Raw].load.decode('utf-8', errors='ignore')[:500]
+                result['post_data'] = pkt[Raw].load.decode('utf-8', errors='ignore')[:2000]
             except:
                 result['post_data'] = None
     
