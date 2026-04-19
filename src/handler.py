@@ -5,7 +5,7 @@
 import sys
 import time
 from monitor import startStopMonitor, startStopNetwork
-from storage import save_to_csv, save_http_to_csv, get_devices_count
+from storage import save_to_csv, save_http_to_csv, save_probe_to_csv, get_devices_count, get_probe_data
 from channel import stop_channel_hopping
 from sniffer import get_packet_count, get_http_data
 
@@ -37,6 +37,9 @@ def signalHandler(sig, frame):
         http_data = get_http_data()
         if http_data:
             save_http_to_csv(write_prefix, http_data)
+        probe_data = get_probe_data()
+        if probe_data:
+            save_probe_to_csv(write_prefix, probe_data)
         print(f"[*] Total devices: {get_devices_count()}")
     
     sys.exit(0)

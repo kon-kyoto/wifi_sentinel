@@ -5,14 +5,15 @@
 from scapy.all import sniff
 import threading
 
-from parser import extract_mac, extract_ssid, is_probe_request, is_beacon
+from parser import extract_mac, extract_ssid, extract_client_mac, extract_target_mac, is_probe_request, is_probe_response, is_beacon
 from http_parser import is_http, parse_http
-from storage import add_or_update_device
+from storage import add_or_update_device, add_probe_data
 from channel import get_current_channel
 
 sniffing_active = True
 http_enabled = True
 mac_enabled = True
+prob_enabled = False
 packet_count = 0
 packet_count_lock = threading.Lock()
 http_data_list = []
@@ -33,6 +34,10 @@ def set_http_enabled(enabled):
 def set_mac_enabled(enabled):
     global mac_enabled
     mac_enabled = enabled
+
+def set_prob_enabled(enabled):
+    global prob_enabled
+    prob_enabled = enabled
 
 def stop_sniffing():
     global sniffing_active
@@ -75,6 +80,18 @@ def pktHandler(pkt):
                 ssid = extract_ssid(pkt)
                 if ssid:
                     add_or_update_device(mac, current_ch, True, ssid)
+        
+        if prob_enabled:
+            if is_probe_request(pkt):
+                ssid = extract_ssid(pkt)
+                client_mac = extract_client_mac(pkt)
+                target_mac = extract_target_mac(pkt)
+                add_probe_data(client_mac, target_mac, ssid, current_ch, "request")
+            elif is_probe_response(pkt):
+                ssid = extract_ssid(pkt)
+                ap_mac = extract_mac(pkt)
+                client_mac = pkt.addr1 if pkt.addr1 else None
+                add_probe_data(client_mac, ap_mac, ssid, current_ch, "response")
         
         if http_enabled and is_http(pkt):
             http_info = parse_http(pkt, current_ch)
