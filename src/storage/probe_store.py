@@ -34,7 +34,7 @@ def save_probe_to_csv(write_prefix, probe_data):
     if not write_prefix or not probe_data:
         return
     
-    probe_filename = f"{write_prefix}_prob.csv"
+    probe_filename = f"data/{write_prefix}_prob.csv"
     mode = 'a' if os.path.exists(probe_filename) else 'w'
     
     with open(probe_filename, mode, newline='', encoding='utf-8') as csvfile:

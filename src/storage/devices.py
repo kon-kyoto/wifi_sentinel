@@ -11,7 +11,7 @@ known_macs = set()
 
 def load_existing_devices(write_prefix):
     global known_macs, devices
-    mac_filename = f"{write_prefix}_mac.csv"
+    mac_filename = f"data/{write_prefix}_mac.csv"
     
     if not os.path.exists(mac_filename):
         print(f"[ ] No existing database found, creating new one")

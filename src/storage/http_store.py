@@ -20,7 +20,7 @@ def save_http_to_csv(write_prefix, http_data):
     if not write_prefix or not http_data:
         return
     
-    http_filename = f"{write_prefix}_http.csv"
+    http_filename = f"data/{write_prefix}_http.csv"
     mode = 'a' if os.path.exists(http_filename) else 'w'
     
     with open(http_filename, mode, newline='', encoding='utf-8') as csvfile:
