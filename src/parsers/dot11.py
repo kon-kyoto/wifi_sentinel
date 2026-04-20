@@ -1,6 +1,5 @@
 """
-Утилиты для парсинга пакетов.
-Извлекает MAC-адреса, SSID и определяет типы пакетов из 802.11 кадров.
+802.11 frame parsing utilities
 """
 from scapy.all import Dot11, Dot11ProbeReq, Dot11ProbeResp, Dot11Beacon, Dot11Elt
 

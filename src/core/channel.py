@@ -1,11 +1,10 @@
 """
-Управление переключением каналов.
-Циклически переключает каналы с потокобезопасным управлением состоянием.
+Channel hopping management
 """
 import subprocess
 import time
 from threading import Lock
-from config import channels, static_channel
+from src.config import channels
 
 current_channel = 1
 stop_hopping = False

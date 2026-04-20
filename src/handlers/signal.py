@@ -1,13 +1,14 @@
 """
-Обработка сигналов и очистка.
-Управляет корректным завершением, восстановлением сети и сохранением данных.
+Signal handling and cleanup
 """
 import sys
 import time
-from monitor import startStopMonitor, startStopNetwork
-from storage import save_to_csv, save_http_to_csv, save_probe_to_csv, get_devices_count, get_probe_data
-from channel import stop_channel_hopping
-from sniffer import get_packet_count, get_http_data
+from src.core.monitor import startStopMonitor, startStopNetwork
+from src.core.channel import stop_channel_hopping
+from src.core.sniffer import get_packet_count, get_http_data
+from src.storage.devices import save_to_csv, get_devices_count
+from src.storage.http_store import save_http_to_csv
+from src.storage.probe_store import save_probe_to_csv, get_probe_data
 
 iface = None
 iface_mon = None
@@ -21,12 +22,10 @@ def init_handler_state(i, i_mon, prefix):
 
 def signalHandler(sig, frame):
     print("\n[*] Stopping...")
-    
     print(f"[*] Statistics:")
     print(f"    Total packets captured: {get_packet_count()}")
     
     stop_channel_hopping()
-    
     time.sleep(0.5)
     
     startStopMonitor(iface, iface_mon, "d")

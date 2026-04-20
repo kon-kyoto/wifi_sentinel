@@ -1,6 +1,5 @@
 """
-Утилиты для парсинга HTTP пакетов.
-Извлекает HTTP запросы и ответы.
+HTTP packet parsing utilities
 """
 from scapy.all import TCP, IP, Raw
 import scapy.layers.http as http
@@ -56,6 +55,11 @@ def parse_http(pkt, current_channel, rssi=None):
                 result['post_data'] = pkt[Raw].load.decode('utf-8', errors='ignore')[:2000]
             except:
                 result['post_data'] = None
+        
+        print(f"\n[HTTP Request] {result['method']} {result['host']}{result['path']}")
+        print(f"    From: {result['src_ip']}:{result['src_port']}")
+        if result['user_agent']:
+            print(f"    User-Agent: {result['user_agent'][:100]}")
     
     elif pkt.haslayer(HTTPResponse):
         result['type'] = 'response'
@@ -63,5 +67,7 @@ def parse_http(pkt, current_channel, rssi=None):
         result['status_code'] = resp.Status_Code.decode() if resp.Status_Code else None
         result['reason'] = resp.Reason_Phrase.decode() if resp.Reason_Phrase else None
         result['content_type'] = resp.Content_Type.decode() if resp.Content_Type else None
+        print(f"\n[HTTP Response] {result['status_code']} {result['reason']}")
+        print(f"    Content-Type: {result['content_type']}")
     
     return result

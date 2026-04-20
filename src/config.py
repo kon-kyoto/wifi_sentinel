@@ -1,8 +1,5 @@
 """
-Конфигурация Wi-Fi каналов.
-Список каналов для сканирования и настройки режимов работы.
+Configuration
 """
-channels = [i for i in range(1, 14)]
+channels = list(range(1, 14))
 write_interval = 30
-static_channel = None
-enable_http = False
