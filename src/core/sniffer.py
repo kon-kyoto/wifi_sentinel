@@ -14,7 +14,7 @@ from src.core.channel import get_current_channel
 sniffing_active = True
 http_enabled = True
 mac_enabled = True
-prob_enabled = False
+prob_enabled = True
 packet_count = 0
 packet_count_lock = threading.Lock()
 

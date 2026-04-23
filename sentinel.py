@@ -8,16 +8,24 @@ import signal
 from src.cli import parse_args
 from src.core.monitor import startStopMonitor, startStopNetwork
 from src.core.channel import chSwitch, init_channel_state, set_static_mode
-from src.core.sniffer import start_sniffing, init_sniffer_state
+from src.core.sniffer import start_sniffing, init_sniffer_state, set_http_enabled, set_mac_enabled, set_prob_enabled
 from src.handlers.signal import signalHandler, out_prog, init_handler_state
 from src.storage.devices import load_existing_devices
 
 def main():
     args = parse_args()
-    
+
     init_handler_state(args.iface, args.iface + "mon", args.write_prefix)
     init_channel_state()
     init_sniffer_state()
+    
+    if args.http_flag or args.mac_flag or args.prob_flag:
+        set_http_enabled(args.http_flag)
+        set_mac_enabled(args.mac_flag)
+        set_prob_enabled(args.prob_flag)
+    else:
+        set_mac_enabled(True)
+        set_prob_enabled(True)
     
     if args.static_channel:
         set_static_mode(args.static_channel)
@@ -35,7 +43,7 @@ def main():
             print(f"[ ] HTTP output: {args.write_prefix}_http.csv")
         if args.mac_flag or (not args.http_flag and not args.mac_flag and not args.prob_flag):
             print(f"[ ] MAC output: {args.write_prefix}_mac.csv")
-        if args.prob_flag:
+        if args.prob_flag or (not args.http_flag and not args.mac_flag and not args.prob_flag):
             print(f"[ ] PROB output: {args.write_prefix}_prob.csv")
         load_existing_devices(args.write_prefix)
     
