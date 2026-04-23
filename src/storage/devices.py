@@ -61,7 +61,6 @@ def add_or_update_device(mac, channel, is_ap=False, ssid=""):
                 devices[mac]['essid'] += f", {ssid}"
             else:
                 devices[mac]['essid'] = ssid
-            print(f"    [{mac}] Probing: {ssid}")
             return True
         return False
 
