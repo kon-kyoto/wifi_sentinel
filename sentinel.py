@@ -2,6 +2,7 @@
 """
 Wi-Fi Sentinel - Passive Airspace Monitor
 """
+import os
 import sys
 import signal
 
@@ -39,6 +40,7 @@ def main():
     print(f"\n[*] Starting capture on {args.iface}")
     
     if args.write_prefix:
+        os.makedirs("data", exist_ok=True)
         if args.http_flag or (not args.http_flag and not args.mac_flag and not args.prob_flag):
             print(f"[ ] HTTP output: {args.write_prefix}_http.csv")
         if args.mac_flag or (not args.http_flag and not args.mac_flag and not args.prob_flag):

@@ -72,7 +72,7 @@ def save_to_csv(write_prefix):
         if not devices:
             return
         
-        mac_filename = f"{write_prefix}_mac.csv"
+        mac_filename = f"data/{write_prefix}_mac.csv"
         
         with open(mac_filename, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
