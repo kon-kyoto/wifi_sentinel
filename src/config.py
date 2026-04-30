@@ -1,5 +1,5 @@
 """
 Configuration
 """
-channels = list(range(1, 14))
+channels = []
 write_interval = 30

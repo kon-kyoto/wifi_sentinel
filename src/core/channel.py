@@ -25,6 +25,31 @@ def set_static_mode(channel):
     static_channel_value = channel
     current_channel = channel
 
+def set_dinamic_mode(mode = "2.4G", user_channels):
+        if mode == "custom" and len(channels) > 0:
+            for item in user_channels:
+                if item < 0 or item > 165:
+                    print(f"[!] Channel {item} out of range")
+                    return 0
+
+            channels = user_channels
+            return 1
+        else if mode == "custom" and len(channels) = 0:
+            print(f"[!] please add channel arr or switch mode")
+            return 0
+        else if mode == "2.4G":
+            print("[ ] set standart channels for 2.4G")
+            channels = [1,6,11]
+            return 1
+        else if mode == "5G":
+            print("[ ] set standart channels for 5G")
+            channels = [i for i in range(36, 49, 4)] + [i for i in range(52, 65, 4)] + [i for i in range(100, 145, 4)]
+            return 1
+        else:
+            print("[!] somthing went wrong")
+            return 0
+
+
 def get_current_channel():
     with channel_lock:
         return current_channel
