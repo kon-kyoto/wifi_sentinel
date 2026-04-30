@@ -13,11 +13,12 @@ static_mode = False
 static_channel_value = None
 
 def init_channel_state():
-    global current_channel, stop_hopping, static_mode, static_channel_value
+    global current_channel, stop_hopping, static_mode, static_channel_value, channels
     current_channel = 1
     stop_hopping = False
     static_mode = False
     static_channel_value = None
+    channels = []
 
 def set_static_mode(channel):
     global static_mode, static_channel_value, current_channel
@@ -25,30 +26,45 @@ def set_static_mode(channel):
     static_channel_value = channel
     current_channel = channel
 
-def set_dinamic_mode(mode = "2.4G", user_channels):
-        if mode == "custom" and len(channels) > 0:
+def set_dynamic_mode(mode="2.4G", user_channels=None):
+    global channels
+    
+    if mode == "custom":
+        if user_channels and len(user_channels) > 0:
+            # Validate channel range
             for item in user_channels:
-                if item < 0 or item > 165:
-                    print(f"[!] Channel {item} out of range")
-                    return 0
-
-            channels = user_channels
-            return 1
-        else if mode == "custom" and len(channels) = 0:
-            print(f"[!] please add channel arr or switch mode")
-            return 0
-        else if mode == "2.4G":
-            print("[ ] set standart channels for 2.4G")
-            channels = [1,6,11]
-            return 1
-        else if mode == "5G":
-            print("[ ] set standart channels for 5G")
-            channels = [i for i in range(36, 49, 4)] + [i for i in range(52, 65, 4)] + [i for i in range(100, 145, 4)]
-            return 1
+                if item < 1 or item > 165:
+                    print(f"[!] Channel {item} out of range (1-165)")
+                    return False
+            
+            channels = user_channels.copy()
+            print(f"[+] Custom channel set: {channels}")
+            return True
         else:
-            print("[!] somthing went wrong")
-            return 0
-
+            print(f"[!] Please provide channel list for custom mode")
+            return False
+            
+    elif mode == "2.4G":
+        print("[ ] Setting standard channels for 2.4 GHz band")
+        channels = [1, 6, 11]
+        print(f"[+] 2.4 GHz channels: {channels}")
+        return True
+        
+    elif mode == "5G":
+        print("[ ] Setting standard channels for 5 GHz band")
+        channels = [36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144]
+        print(f"[+] 5 GHz channels: {channels}")
+        return True
+        
+    elif mode == "all":
+        print("[ ] Setting all available channels")
+        channels = list(range(1, 14)) + [36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 149, 153, 157, 161, 165]
+        print(f"[+] All channels: {channels}")
+        return True
+        
+    else:
+        print(f"[!] Unknown mode: {mode}. Available: 2.4G, 5G, all, custom")
+        return False
 
 def get_current_channel():
     with channel_lock:
@@ -77,6 +93,12 @@ def chSwitch(iface_mon):
         while not stop_hopping:
             time.sleep(1)
         return
+
+    if not channels:
+        print("[!] No channels configured, using default 2.4GHz channels")
+        set_dynamic_mode("2.4G")
+    
+    print(f"[*] Starting channel hopping on {len(channels)} channels: {channels}")
     
     while not stop_hopping:
         for ch in channels:
@@ -86,6 +108,10 @@ def chSwitch(iface_mon):
                 subprocess.run(["sudo", "iw", "dev", iface_mon, "set", "channel", str(ch)], 
                              capture_output=True, check=True)
                 set_current_channel(ch)
-                time.sleep(0.5)
-            except:
-                pass
+                time.sleep(0.3)
+            except subprocess.CalledProcessError as e:
+                print(f"[-] Failed to set channel {ch}: {e}")
+                time.sleep(0.1)
+            except Exception as e:
+                print(f"[-] Unexpected error on channel {ch}: {e}")
+                time.sleep(0.1)

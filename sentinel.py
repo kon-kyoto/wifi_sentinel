@@ -8,10 +8,11 @@ import signal
 
 from src.cli import parse_args
 from src.core.monitor import startStopMonitor, startStopNetwork
-from src.core.channel import chSwitch, init_channel_state, set_static_mode
+from src.core.channel import chSwitch, init_channel_state, set_static_mode, set_dynamic_mode
 from src.core.sniffer import start_sniffing, init_sniffer_state, set_http_enabled, set_mac_enabled, set_prob_enabled
 from src.handlers.signal import signalHandler, out_prog, init_handler_state
 from src.storage.devices import load_existing_devices
+from src.config import channels
 
 def main():
     args = parse_args()
@@ -30,6 +31,11 @@ def main():
     
     if args.static_channel:
         set_static_mode(args.static_channel)
+    else:
+        if args.channel_mode == "custom":
+            set_dynamic_mode("custom", args.custom_channels)
+        else:
+            set_dynamic_mode(args.channel_mode)
     
     if startStopMonitor(args.iface, args.iface + "mon", "a"):
         out_prog("monitor mode")
@@ -53,7 +59,10 @@ def main():
         print(f"[ ] Channel: static {args.static_channel}")
     else:
         from src.config import channels
-        print(f"[ ] Hopping channels: {channels[0]}-{channels[-1]}")
+        if channels:
+            print(f"[ ] Hopping channels: {channels[0]}-{channels[-1]} (total: {len(channels)})")
+        else:
+            print(f"[ ] Channel hopping mode: {args.channel_mode}")
     
     print(f"[ ] Press Ctrl+C to stop it\n")
     
